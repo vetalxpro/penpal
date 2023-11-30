@@ -33,6 +33,9 @@ export default (
       methodNames: Object.keys(serializedMethods),
     };
 
-    (event.source as Window).postMessage(synAckMessage, originForSending);
+    (event.source as Window).postMessage(
+      JSON.stringify(synAckMessage),
+      originForSending
+    );
   };
 };

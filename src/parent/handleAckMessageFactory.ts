@@ -57,7 +57,7 @@ export default (
       });
     }
 
-    receiverMethodNames = event.data.methodNames;
+    receiverMethodNames = JSON.parse(event.data).methodNames;
 
     const destroyCallSender = connectCallSender(
       callSender,

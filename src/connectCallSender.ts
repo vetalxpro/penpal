@@ -9,6 +9,7 @@ import {
   WindowsInfo,
 } from './types';
 import { ErrorCode, MessageType, NativeEventType, Resolution } from './enums';
+import { parseEventData } from './utils';
 
 /**
  * Augments an object with methods that match those defined by the remote. When these methods are
@@ -77,10 +78,11 @@ export default (
       return new Promise((resolve, reject) => {
         const id = generateId();
         const handleMessageEvent = (event: MessageEvent) => {
+          const data = parseEventData(event);
           if (
             event.source !== remote ||
-            event.data.penpal !== MessageType.Reply ||
-            event.data.id !== id
+            data.penpal !== MessageType.Reply ||
+            data.id !== id
           ) {
             return;
           }
@@ -95,7 +97,7 @@ export default (
             return;
           }
 
-          const replyMessage: ReplyMessage = event.data;
+          const replyMessage: ReplyMessage = data;
 
           log(`${localName}: Received ${methodName}() reply`);
           local.removeEventListener(
@@ -121,7 +123,7 @@ export default (
           methodName,
           args,
         };
-        remote.postMessage(callMessage, originForSending);
+        remote.postMessage(JSON.stringify(callMessage), originForSending);
       });
     };
   };

@@ -11,6 +11,7 @@ import {
   NativeErrorName,
   Resolution,
 } from './enums';
+import { parseEventData } from './utils';
 
 /**
  * Listens for "call" messages coming from the remote, executes the corresponding method, and
@@ -31,7 +32,9 @@ export default (
   let destroyed = false;
 
   const handleMessageEvent = (event: MessageEvent) => {
-    if (event.source !== remote || event.data.penpal !== MessageType.Call) {
+    const data = parseEventData(event);
+
+    if (event.source !== remote || data.penpal !== MessageType.Call) {
       return;
     }
 
@@ -42,7 +45,7 @@ export default (
       return;
     }
 
-    const callMessage: CallMessage = event.data;
+    const callMessage: CallMessage = data;
     const { methodName, args, id } = callMessage;
 
     log(`${localName}: Received ${methodName}() call`);
@@ -79,20 +82,21 @@ export default (
         }
 
         try {
-          remote.postMessage(message, originForSending);
+          remote.postMessage(JSON.stringify(message), originForSending);
         } catch (err) {
           // If a consumer attempts to send an object that's not cloneable (e.g., window),
           // we want to ensure the receiver's promise gets rejected.
-          if (err.name === NativeErrorName.DataCloneError) {
-            const errorReplyMessage: ReplyMessage = {
-              penpal: MessageType.Reply,
-              id,
-              resolution: Resolution.Rejected,
-              returnValue: serializeError(err),
-              returnValueIsError: true,
-            };
-            remote.postMessage(errorReplyMessage, originForSending);
-          }
+          const errorReplyMessage: ReplyMessage = {
+            penpal: MessageType.Reply,
+            id,
+            resolution: Resolution.Rejected,
+            returnValue: serializeError(err as Error),
+            returnValueIsError: true,
+          };
+          remote.postMessage(
+            JSON.stringify(errorReplyMessage),
+            originForSending
+          );
 
           throw err;
         }

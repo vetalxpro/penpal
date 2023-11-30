@@ -16,6 +16,7 @@ import { serializeMethods } from '../methodSerialization';
 import monitorIframeRemoval from './monitorIframeRemoval';
 import startConnectionTimeout from '../startConnectionTimeout';
 import validateIframeHasSrcOrSrcDoc from './validateIframeHasSrcOrSrcDoc';
+import { parseEventData } from '../utils';
 
 type Options = {
   /**
@@ -87,12 +88,14 @@ export default <TCallSender extends object = CallSender>(
           return;
         }
 
-        if (event.data.penpal === MessageType.Syn) {
+        const data = parseEventData(event);
+
+        if (data.penpal === MessageType.Syn) {
           handleSynMessage(event);
           return;
         }
 
-        if (event.data.penpal === MessageType.Ack) {
+        if (data.penpal === MessageType.Ack) {
           const callSender = handleAckMessage(event) as AsyncMethodReturns<
             TCallSender
           >;
