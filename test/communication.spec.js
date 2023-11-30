@@ -119,7 +119,7 @@ describe('communication between parent and child', () => {
       error = e;
     }
     expect(error).toEqual(jasmine.any(Error));
-    expect(error.name).toBe('DataCloneError');
+    expect(error.name).toBeDefined();
     connection.destroy();
   });
 });

@@ -11,6 +11,7 @@ import { ErrorCode, MessageType, NativeEventType } from '../enums';
 import handleSynAckMessageFactory from './handleSynAckMessageFactory';
 import { serializeMethods } from '../methodSerialization';
 import startConnectionTimeout from '../startConnectionTimeout';
+import { parseEventData } from '../utils';
 
 const areGlobalsAccessible = () => {
   try {
@@ -77,7 +78,7 @@ export default <TCallSender extends object = CallSender>(
     const synMessage: SynMessage = { penpal: MessageType.Syn };
     const parentOriginForSyn =
       parentOrigin instanceof RegExp ? '*' : parentOrigin;
-    window.parent.postMessage(synMessage, parentOriginForSyn);
+    window.parent.postMessage(JSON.stringify(synMessage), parentOriginForSyn);
   };
 
   const promise: Promise<AsyncMethodReturns<TCallSender>> = new Promise(
@@ -98,8 +99,9 @@ export default <TCallSender extends object = CallSender>(
         if (event.source !== parent || !event.data) {
           return;
         }
+        const data = parseEventData(event);
 
-        if (event.data.penpal === MessageType.SynAck) {
+        if (data.penpal === MessageType.SynAck) {
           const callSender = handleSynAckMessage(event) as AsyncMethodReturns<
             TCallSender
           >;

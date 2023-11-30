@@ -45,7 +45,7 @@ export default (
       methodNames: Object.keys(serializedMethods),
     };
 
-    window.parent.postMessage(ackMessage, originForSending);
+    window.parent.postMessage(JSON.stringify(ackMessage), originForSending);
 
     const info: WindowsInfo = {
       localName: 'Child',
@@ -66,7 +66,7 @@ export default (
     const destroyCallSender = connectCallSender(
       callSender,
       info,
-      event.data.methodNames,
+      JSON.parse(event.data).methodNames,
       destroy,
       log
     );

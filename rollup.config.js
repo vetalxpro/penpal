@@ -6,7 +6,7 @@ module.exports = {
   output: [
     {
       file: 'dist/penpal.js',
-      format: 'iife',
+      format: 'umd',
       name: 'Penpal',
     },
   ],

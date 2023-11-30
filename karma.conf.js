@@ -93,7 +93,7 @@ module.exports = (config) => {
         output: {
           // To include inlined sourcemaps as data URIs
           sourcemap: true,
-          format: 'iife',
+          format: 'umd',
         },
         // To compile with babel using es2015 preset
         plugins: [babel()],
